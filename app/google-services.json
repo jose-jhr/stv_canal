@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "984104829822",
+    "project_id": "notificationstv",
+    "storage_bucket": "notificationstv.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:984104829822:android:96cd06daf51c66d01ae92f",
+        "android_client_info": {
+          "package_name": "com.ingenieria.stv"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "984104829822-9b58dk04miqav38n6m3pia62squgfqqp.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.ingenieria.stv",
+            "certificate_hash": "b7c5f80de94832bc57ef7eaa9ed5ba79cb0dc695"
+          }
+        },
+        {
+          "client_id": "984104829822-3ru4dkjc7i4digce34s6djo6g3spkqba.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB3xOOBThUXlBuearB6LQaXHqa391KqI-Q"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "984104829822-3ru4dkjc7i4digce34s6djo6g3spkqba.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

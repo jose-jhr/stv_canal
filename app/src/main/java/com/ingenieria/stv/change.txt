@@ -1,0 +1,51 @@
+/*
+                        val pinger = Pinger()
+
+                        pinger.setOnPingListener(object : Pinger.OnPingListener {
+                            override fun onPingSuccess() {
+                                runOnUiThread {
+                                    Toast.makeText(this@MainActivity, "Ping Success", Toast.LENGTH_SHORT).show()
+                                }
+                                if (fallo){
+                                    runOnUiThread {
+                                        getUrlServer()
+                                        fallo = false
+                                    }
+                                }
+                            }
+
+                            override fun onPingFailure() {
+                                runOnUiThread {
+                                    Toast.makeText(this@MainActivity, "Ping failure", Toast.LENGTH_SHORT).show()
+                                }
+                                fallo = true
+                                transitionChangeToListo = false
+                            }
+
+                            override fun onPingFinish() {
+                                runOnUiThread {
+                                    Toast.makeText(this@MainActivity, "NO PING", Toast.LENGTH_SHORT).show()
+                                }
+                            }
+                        })
+
+
+                        pinger.pingUntilSucceeded("videosurnet.co",4000)
+
+
+                        if (!transitionChangeToListo){
+                            thread(start = true){
+                                Thread.sleep(10000)
+                                while (!transitionChangeToListo){
+                                    runOnUiThread {
+                                        Toast.makeText(this@MainActivity, "Cambio de transición", Toast.LENGTH_SHORT).show()
+                                    }
+                                    runOnUiThread {
+                                        getUrlServer()
+                                    }
+                                    Thread.sleep(10000)
+                                }
+                            }
+                        }
+
+                         */

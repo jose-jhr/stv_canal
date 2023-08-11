@@ -1,28 +1,22 @@
 package com.ingenieria.stv
 
-import android.Manifest
+import android.R
 import android.annotation.SuppressLint
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
-import android.content.pm.PackageManager
 import android.net.Uri
-import android.os.Build
 import android.os.Bundle
-import android.os.Handler
 import android.os.PowerManager
-import android.service.controls.ControlsProviderService.TAG
 import android.util.Log
 import android.view.View
 import android.view.Window
 import android.view.WindowManager
+import android.widget.EditText
 import android.widget.Toast
-import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.ContextCompat
 import androidx.lifecycle.Observer
-import com.android.volley.DefaultRetryPolicy
-import com.android.volley.toolbox.StringRequest
 import com.androidstudy.networkmanager.Monitor
 import com.androidstudy.networkmanager.Tovuti
 import com.google.android.exoplayer2.C
@@ -36,13 +30,11 @@ import com.google.android.exoplayer2.upstream.DefaultAllocator
 import com.google.android.exoplayer2.upstream.DefaultHttpDataSource
 import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory
 import com.google.android.exoplayer2.util.Util
-import com.google.android.gms.tasks.OnCompleteListener
-import com.google.firebase.iid.FirebaseInstanceIdReceiver
-import com.google.firebase.iid.internal.FirebaseInstanceIdInternal
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.ktx.Firebase
 import com.google.firebase.messaging.FirebaseMessaging
 import com.ingenieria.stv.databinding.ActivityMainBinding
 import kotlin.concurrent.thread
-import kotlin.math.log
 
 
 class MainActivity : AppCompatActivity(){
@@ -64,29 +56,32 @@ class MainActivity : AppCompatActivity(){
 
     var playUrlVideo = false
 
-    private val TIME_VAL_ERROR = 1000L
+    private val TIME_VAL_ERROR = 10000L
 
     var trueConectionInternet = false
 
     var idFirebase = ""
 
-
+    //db controll
+    private var db = Firebase.firestore
 
     @SuppressLint("JavascriptInterface")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
 
+
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         window.setFlags(
             WindowManager.LayoutParams.FLAG_FULLSCREEN,
             WindowManager.LayoutParams.FLAG_FULLSCREEN,
         )
-
         setContentView(binding.root)
+
         hideNotificationBar()
-       // medController = MediaController(this)
-       // videoView.setMediaController(medController)
+        /**get id firebase**/
+        notificationFirebase()
+        /**init media controler**/
         mediaPlayerController()
 
 
@@ -112,18 +107,6 @@ class MainActivity : AppCompatActivity(){
         })
         /**test error url*/
         binding.btnError.visibility = View.GONE
-        /*
-        binding.btnError.visibility = View.GONE
-        binding.btnError.setOnLongClickListener {
-            if (errorAddString.isNotEmpty()){
-                Toast.makeText(this, "error eliminado", Toast.LENGTH_SHORT).show()
-                errorAddString = ""
-            }else{
-                Toast.makeText(this, "error adicionado", Toast.LENGTH_SHORT).show()
-                errorAddString = "h"
-            }
-            true
-        }*/
 
         //no block display
         lockDisplay()
@@ -136,13 +119,13 @@ class MainActivity : AppCompatActivity(){
         /** rx Firebase liveData **/
         MyFirebaseMessagingService.messageReceived.observe(this, Observer {message->
             println("llego mensaje ${message.notification?.title?:"tittle"}")
+            Toast.makeText(this, "Mensaje recibido", Toast.LENGTH_SHORT).show()
             Log.d("firebasejhr",message.notification?.title?:"tittle observe")
             player.release()
             playUrl(message.notification?.body?:"")
         })
 
-        /**get id firebase**/
-        notificationFirebase()
+
     }
 
     /**
@@ -222,6 +205,7 @@ class MainActivity : AppCompatActivity(){
         })
 
         /** Listener play url */
+        /** Listener play url */
         //listener de la reproduccion
         player.addListener(object : com.google.android.exoplayer2.Player.EventListener {
             override fun onPlayerStateChanged(playWhenReady: Boolean, playbackState: Int) {
@@ -293,6 +277,7 @@ class MainActivity : AppCompatActivity(){
 
 
     fun getUrlServer() {
+        /*
         player.release()
         val url = "https://narino.stvcanal.com.co/urlapp/url_app.php"
         //val url = "http://192.168.0.105/2023/stv-obs/url/url.php"
@@ -310,10 +295,78 @@ class MainActivity : AppCompatActivity(){
         }
         strinRequest.retryPolicy = DefaultRetryPolicy(1000, 1,2f)
         MySingleton.getInstance(this).addRequestQueue<String>(strinRequest)
+        */
+
+
+       val dataTokens = db.collection("tokens").whereEqualTo("token",idFirebase).get()
+        dataTokens.addOnSuccessListener {
+            if(!it.isEmpty){
+                /**itera elements result**/
+                for (doc in it){
+                    //Log.d("firebasejhr","reference ${doc.data["location"]}")
+                    //Log.d("firebasejhr"," elementos $it")
+                    url_defecto = "${doc.data["url_current"]}"
+                    playUrl(url_defecto)
+                    break
+                }
+                /**elements empty no found in the system**/
+            }else{
+               alertCreateElementFromFirestore()
+            }
+        }.addOnFailureListener {
+            Toast.makeText(applicationContext, "Algo salio mal con la petición", Toast.LENGTH_SHORT).show()
+        }
+
     }
 
+    private fun alertCreateElementFromFirestore() {
+        /**Create edit text for name db**/
+        val edtLocation = EditText(this)
+        edtLocation.hint = "Zona o lugar del dispositivo"
+
+        /**Create AlertDialog for send text a firestore**/
+        AlertDialog.Builder(this)
+            .setTitle("¿Tu token no se encontro en BD deseas almacenarlo?")
+            .setView(edtLocation)
+            .setMessage("Ingresa por favor el lugar de este dispositivo sin espacios ni mayusculas") // Specifying a listener allows you to take an action before dismissing the dialog.
+            // The dialog is automatically dismissed when a dialog button is clicked.
+            .setPositiveButton(
+                R.string.yes
+            ) { dialog, which ->
+                //data to send
+
+                val dataTokens = db.collection("tokens").whereEqualTo("location","${edtLocation.text}").get()
+                dataTokens.addOnSuccessListener {
+                    if(it.isEmpty){
+                        /**no found elements ok register**/
+                        val tokenSend: MutableMap<String, Any> = HashMap()
+                        tokenSend["location"] = "${edtLocation.text}"
+                        tokenSend["url_current"] = "null"
+                        tokenSend["token"] = "$idFirebase"
+
+                        // Continue send data to firestore
+                        db.collection("tokens").document()
+                            .set(tokenSend).addOnSuccessListener {
+                                Toast.makeText(applicationContext, "Se envio token correctamente, por favor ponle una url", Toast.LENGTH_LONG).show()
+                            }.addOnFailureListener {
+                                Toast.makeText(applicationContext, "Algo salio mal al enviar token", Toast.LENGTH_LONG).show()
+                            }
+
+                    }else{
+                        Toast.makeText(this, "El lugar ${edtLocation.text} ya se encuentra registrado, cambialo por favor....", Toast.LENGTH_LONG).show()
+                        /**elements empty no found in the system**/
+                        alertCreateElementFromFirestore()
+                    }
+                }.addOnFailureListener {
+                    Toast.makeText(applicationContext, "Algo salio mal con la petición", Toast.LENGTH_SHORT).show()
+                }
 
 
+            } // A null listener allows the button to dismiss the dialog and take no further action.
+            .setNegativeButton(R.string.no, null)
+            .setIcon(R.drawable.ic_dialog_alert)
+            .show()
+    }
 
 
 }

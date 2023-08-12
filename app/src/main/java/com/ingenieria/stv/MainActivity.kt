@@ -160,7 +160,6 @@ class MainActivity : AppCompatActivity(){
         val powerManager = getSystemService(Context.POWER_SERVICE) as PowerManager
         val wakeLock = powerManager.newWakeLock(PowerManager.SCREEN_DIM_WAKE_LOCK, "MyApp::MyWakelockTag")
         wakeLock.acquire(100000*60*1000L /*10 minutes*/)
-
     }
 
     private fun playUrl(toUrl: String) {
@@ -204,7 +203,6 @@ class MainActivity : AppCompatActivity(){
             }
         })
 
-        /** Listener play url */
         /** Listener play url */
         //listener de la reproduccion
         player.addListener(object : com.google.android.exoplayer2.Player.EventListener {
@@ -297,7 +295,7 @@ class MainActivity : AppCompatActivity(){
         MySingleton.getInstance(this).addRequestQueue<String>(strinRequest)
         */
 
-
+        player.release()
        val dataTokens = db.collection("tokens").whereEqualTo("token",idFirebase).get()
         dataTokens.addOnSuccessListener {
             if(!it.isEmpty){

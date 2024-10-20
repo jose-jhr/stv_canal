@@ -23,7 +23,6 @@ class MyFirebaseMessagingService:FirebaseMessagingService() {
 
         Log.d("firebasejhr","entramos")
         messageReceived.postValue(remoteMessage)
-
     }
 
 }

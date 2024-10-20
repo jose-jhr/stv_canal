@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:background="@drawable/round_view"
+    >
+
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/registro_de_box_android_tv_stv"
+        android:textSize="20dp"
+        android:textStyle="bold"
+        >
+    </TextView>
+
+    <EditText
+        android:id="@+id/editTextCity"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Nombre de la Ciudad" />
+
+    <EditText
+        android:id="@+id/editTextAlias"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textAllCaps="false"
+        android:inputType="textCapWords"
+        android:hint="Alias Box Android" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="right"
+        android:text="Enviar"
+        android:id="@+id/btnSendServer"
+        android:background="@drawable/round_view"
+        android:backgroundTint="@color/purple_200"
+        android:textColor="@color/white"
+        >
+    </Button>
+
+</LinearLayout>
